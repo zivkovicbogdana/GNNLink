@@ -10,7 +10,7 @@ class load_data():
         self.normalize = normalize
 
     def data_normalize(self,data):
-        standard = StandardScaler(with_mean=False, with_std=True)
+        standard = StandardScaler()
         epr = standard.fit_transform(data.T)
 
         return epr.T

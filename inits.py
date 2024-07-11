@@ -24,34 +24,32 @@ def adj_to_bias(adj, sizes, nhood = 1):
 
 
 def load_data1():
-    exp_file = 'Data/hESC/TF+1000 STRING/hESC1000-ExpressionData.csv'
-    lookup_file = 'Data/combined_lookup_table.csv'   #new
+    exp_file = 'Data/mESC/TF+1000 LOFGOF/mESC1000-ExpressionData.csv'
+    lookup_file = 'Data/mESC/TF+1000 LOFGOF/Transformed_Train_set_lookup_table.csv'   #new
 
     data_input = pd.read_csv(exp_file, index_col=0)
-    lookup_dict = read_lookup_table(lookup_file)   #new
 
-    print("Initial feature values (before lookup):")    #new
-    print(data_input.iloc[:5, :5])  #new
-
-    features = data_input.apply(lambda row: row + lookup_dict.get(row.name, 0), axis=1).values   #new
-
-    print("Feature values (after lookup):") #new
-    print(features[:5, :5])  #new
+    print("Initial feature values (before normalization and lookup):")
+    print(data_input.iloc[:5, :5])
 
     geneName = data_input.index
-    #loader = load_data(data_input)
-    loader = load_data(pd.DataFrame(features, index=geneName))   #new
-    feature = loader.exp_data()
+    loader = load_data(data_input)
+    normalized_data = loader.exp_data()
 
     print("Normalized feature values:")
+    print(normalized_data[:5, :5])
+
+    lookup_dict = read_lookup_table(lookup_file)
+    feature = np.array([row + np.exp(500 * lookup_dict.get(geneName[i], 0)) for i, row in enumerate(normalized_data)])
+
+    print("Feature values after applying lookup table:")
     print(feature[:5, :5])
 
     geneNum = feature.shape[0]
 
-
-    train_file = 'Data/Train_validation_test/hESC 1000 STRING/Train_set.csv'  # .../Demo/
-    test_file = 'Data/Train_validation_test/hESC 1000 STRING/Test_set.csv'
-    val_file = 'Data/Train_validation_test/hESC 1000 STRING/Validation_set.csv'
+    train_file = 'Data/Train_validation_test/mESC 1000 LOFGOF/Train_set.csv'  # .../Demo/
+    test_file = 'Data/Train_validation_test/mESC 1000 LOFGOF/Test_set.csv'
+    val_file = 'Data/Train_validation_test/mESC 1000 LOFGOF/Validation_set.csv'
     train_data = pd.read_csv(train_file, index_col=0).values
     validation_data = pd.read_csv(val_file, index_col=0).values
     test_data = pd.read_csv(test_file, index_col=0).values
